@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 3
+  template: 
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: server
+          image: raian13/hipster-frontend:1.1
+          env:
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "product-catalog-service:3550"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currency-service:7000"
+          - name: CART_SERVICE_ADDR
+            value: "cart-service:7070"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "recommendation-service:8080"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "checkout-service:5050"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shipping-service:50051"
+          - name: AD_SERVICE_ADDR
+            value: "ad-service:9555"
