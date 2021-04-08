@@ -9,6 +9,13 @@ spec:
     matchLabels:
       app: paymentservice
   replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
+  minReadySeconds: 60
+  paused: false
   template: 
     metadata:
       labels:
@@ -25,3 +32,4 @@ spec:
           readinessProbe:
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:50051"]
+
