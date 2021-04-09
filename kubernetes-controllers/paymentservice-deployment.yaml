@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice
+  labels:
+    app: paymentservice
+spec:
+  selector:
+    matchLabels:
+      app: paymentservice
+  replicas: 3
+  template: 
+    metadata:
+      labels:
+        app: paymentservice
+    spec:
+      containers:
+        - name: server
+          image: raian13/hipster-paymentservice:1.1
+          ports:
+          - containerPort: 50051
+          env:
+          - name: PORT
+            value: "50051"
+          # readinessProbe:
+          #   exec:
+          #     command: ["/bin/grpc_health_probe", "-addr=:50051"]
