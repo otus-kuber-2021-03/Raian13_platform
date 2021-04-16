@@ -4,7 +4,7 @@ metadata:
   name: cluster-pod-reader-role-binding
 subjects:
 - kind: Group
-  name: system:serviceaccount
+  name: system:serviceaccounts
   namespace: prometheus
 roleRef:
   kind: ClusterRole
