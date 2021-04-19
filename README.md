@@ -14,3 +14,7 @@ Raian13 Platform repository
 ## Homework 3
 
 Создание ServiceAccount и разграничение прав доступа в k8s
+
+## Homework 4
+
+Создание StatefulSet, использование secrets
