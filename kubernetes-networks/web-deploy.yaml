@@ -9,6 +9,11 @@ spec:
   selector: 
     matchLabels: 
       app: web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 100%
+      maxSurge: 0%
   template:
     metadata:
       labels:
@@ -20,6 +25,8 @@ spec:
           volumeMounts:
             - mountPath: /app
               name: app
+            - mountPath: /test1
+              name: test1
           livenessProbe:
             tcpSocket: { port: 8000 }
           readinessProbe:
@@ -35,4 +42,6 @@ spec:
               name: app
       volumes:
           - name: app
+            emptyDir: {}
+          - name: test1
             emptyDir: {}
