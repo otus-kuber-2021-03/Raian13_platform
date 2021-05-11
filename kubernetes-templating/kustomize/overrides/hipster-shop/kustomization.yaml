@@ -1,0 +1,6 @@
+resources:
+- ../../base
+nameSuffix: ''
+namespace: hipster-shop
+commonLabels:
+  app: hipster-shop
