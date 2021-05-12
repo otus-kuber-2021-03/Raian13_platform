@@ -215,16 +215,16 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 
 # Chartmuseum Ingress hostnames
 # Must be provided if Ingress is enabled
 
   hosts:
-    - name: chartmuseum.IP.nip.io
+    - name: chartmuseum.34.89.33.35.nip.io
       path: /
       tls: true
-      tlsSecret: chartmuseum.IP.nip.io
+      tlsSecret: chartmuseum.34.89.33.35.nip.io
 #    - name: chartmuseum.domain1.com
 #      path: /
 #      tls: false
