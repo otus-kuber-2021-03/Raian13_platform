@@ -18,3 +18,12 @@ Raian13 Platform repository
 ## Homework 4
 
 Создание StatefulSet, использование secrets
+
+## Homework 5
+
+Kubernetes services and ingress
+
+## Homework 6
+
+Helm, jsonnet и kustomize - шаблонизация и развертывание (на примере Google Cloud)
+

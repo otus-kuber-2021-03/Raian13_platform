@@ -1,0 +1,3 @@
+resources:
+- currencyservice-deployment.yaml
+- currencyservice-service.yaml
