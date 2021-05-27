@@ -24,7 +24,9 @@ fullnameOverride: ""
 
 ## Labels to apply to all resources
 ##
-commonLabels: {}
+# commonLabels: {}
+commonLabels:
+  monitoring: enabled
 # scmhash: abc123
 # myLabel: aakkmd
 
@@ -318,7 +320,7 @@ alertmanager:
     loadBalancerSourceRanges: []
     ## Service type
     ##
-    type: ClusterIP
+    type: NodePort
 
   ## Configuration for creating a separate Service for each statefulset Alertmanager replica
   ##
@@ -705,6 +707,7 @@ grafana:
   ##
   service:
     portName: service
+    type: NodePort
 
   ## If true, create a serviceMonitor for grafana
   ##
@@ -1659,7 +1662,7 @@ prometheus:
     loadBalancerSourceRanges: []
     ## Service type
     ##
-    type: ClusterIP
+    type: NodePort
 
     sessionAffinity: ""
 
@@ -2023,11 +2026,11 @@ prometheus:
     ## ServiceMonitors to be selected for target discovery.
     ## If {}, select all ServiceMonitors
     ##
-    serviceMonitorSelector: {}
+    # serviceMonitorSelector: {}
     ## Example which selects ServiceMonitors with label "prometheus" set to "somelabel"
-    # serviceMonitorSelector:
-    #   matchLabels:
-    #     prometheus: somelabel
+    serviceMonitorSelector:
+      matchLabels:
+        monitoring: enabled
 
     ## Namespaces to be selected for ServiceMonitor discovery.
     ##
@@ -2362,14 +2365,15 @@ prometheus:
   #    verbs: [ "get", "list", "watch" ]
 
   additionalServiceMonitors: []
-  ## Name of the ServiceMonitor to create
-  ##
-  # - name: ""
+  # Name of the ServiceMonitor to create
+  #
+  # - name: "nginx-custom"
 
-    ## Additional labels to set used for the ServiceMonitorSelector. Together with standard labels from
-    ## the chart
-    ##
-    # additionalLabels: {}
+    # Additional labels to set used for the ServiceMonitorSelector. Together with standard labels from
+    # the chart
+    #
+    # additionalLabels: 
+    #   svc: nginx
 
     ## Service label for use in assembling a job name of the form <label value>-<port>
     ## If no label is specified, the service name is used.
@@ -2386,14 +2390,16 @@ prometheus:
 
     ## Label selector for services to which this ServiceMonitor applies
     ##
-    # selector: {}
+    # selector: 
+    #   matchLabels:
+    #     app: nginx-custom
 
     ## Namespaces from which services are selected
     ##
     # namespaceSelector:
       ## Match any namespace
       ##
-      # any: false
+      # any: true
 
       ## Explicit list of namespace names to select
       ##
@@ -2401,10 +2407,10 @@ prometheus:
 
     ## Endpoints of the selected service to be monitored
     ##
-    # endpoints: []
+    # endpoints:
       ## Name of the endpoint's service port
       ## Mutually exclusive with targetPort
-      # - port: ""
+      # - port: metrics
 
       ## Name or number of the endpoint's target port
       ## Mutually exclusive with port
