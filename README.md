@@ -35,4 +35,11 @@ Prometheus-exporter развернут через helm3, модифициров�
 - сервисы Grafana, Alertmanager, Prometheus переключены в режим NodePort для локального доступа к UI
 - добавлен общий label monitoring: enabled, который используется в serviceMonitorSelector для target discovery
 
+Команды для развертывания:
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus-operator prometheus-community/kube-prometheus-stack -f helm/values.yaml -n monitor
+```
+
 Результат в Графане  - часть официального дашборда nginx-exporter: ![График](./images/monitoring-nginx.png)
