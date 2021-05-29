@@ -1,18 +1,25 @@
+tolerations:
+  - key: node-role
+    operator: Equal
+    value: infra
+    effect: NoSchedule
+
 backend:
   type: es
   es:
     host: elasticsearch-master
 
+parsers:
+  enabled: true
+  regex:
+    - name: log_parser
+      regex: ^(?<logtimestamp>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+      timeKey: logtimestamp
+      timeFormat: "%Y-%m-%dT%H:%M:%S.%L%z"
+
 input:
   tail:
-    parser: cri
-
-parsers:
-  json:
-  - name: json-log
-    extraEntries: |
-      Time_Format %Y-%m-%dT%H:%M:%S.%L%z
-      
+    parser: log_parser
 
 rawConfig: |
   @INCLUDE fluent-bit-service.conf
@@ -26,9 +33,3 @@ rawConfig: |
     Match   *
     Remove  time
     Remove  @timestamp
-
-  [FILTER]
-    Name      parser
-    Match     kube.*
-    Key_Name  message
-    Parser    json-log

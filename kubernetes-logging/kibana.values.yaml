@@ -1,3 +1,12 @@
+tolerations:
+  - key: node-role
+    operator: Equal
+    value: infra
+    effect: NoSchedule
+
+nodeSelector:
+  pool: infra-pool
+
 ingress:
   enabled: true
   annotations: {
