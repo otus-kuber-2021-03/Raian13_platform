@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-custom
+  labels:
+    app: nginx-custom
+spec:
+  selector:
+    matchLabels:
+      app: nginx-custom
+  replicas: 3
+  template: 
+    metadata:
+      labels:
+        app: nginx-custom
+    spec:
+      containers:
+        - name: nginx
+          image: raian13/otus-kuber-nginx:hw7
+          ports:
+          - containerPort: 8000          
+        - name: nginx-exporter
+          image: nginx/nginx-prometheus-exporter:0.9.0
+          args: ["-nginx.scrape-uri=http://localhost:8000/basic_status"]
+          ports:
+          - containerPort: 9113
