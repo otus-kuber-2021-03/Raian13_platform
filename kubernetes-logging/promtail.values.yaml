@@ -1,0 +1,11 @@
+tolerations:
+- key: node-role.kubernetes.io/master
+  operator: Exists
+  effect: NoSchedule
+- key: node-role
+  operator: Equal
+  value: infra
+  effect: NoSchedule
+
+config:
+  lokiAddress: http://loki:3100/loki/api/v1/push

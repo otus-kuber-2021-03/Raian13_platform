@@ -1,0 +1,3 @@
+serviceMonitor:
+  labels:
+    monitoring: enabled

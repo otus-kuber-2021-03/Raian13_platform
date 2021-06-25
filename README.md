@@ -43,3 +43,23 @@ helm install prometheus-operator prometheus-community/kube-prometheus-stack -f h
 ```
 
 Результат в Графане  - часть официального дашборда nginx-exporter: ![График](./images/monitoring-nginx.png)
+
+## Homework 8
+
+Домашняя работа выполнялась не в Google Cloud, а локально на кластере kind. Для имитации условий - создана 1 нода с ролью control-plane и 4 ноды worker. Для имитации пулов к нодам применены следующие команды
+```
+kubectl label nodes kind-worker pool=default-pool
+kubectl label nodes kind-worker2 pool=infra-pool
+kubectl label nodes kind-worker3 pool=infra-pool
+kubectl label nodes kind-worker4 pool=infra-pool
+
+kubectl taint node kind-worker2 node-role=infra:NoSchedule
+kubectl taint node kind-worker3 node-role=infra:NoSchedule
+kubectl taint node kind-worker4 node-role=infra:NoSchedule
+```
+
+В кластере развернут MetalLB.
+Установка Эластика и Кибаны - без существенных особенностей, Для fluent-bit пришлось изменить парсер для разбора логов.
+Установка elasticsearch-exporter, prometheus-operator - без существенных особенностей.
+
+Установка loki и promtail выполнена отдельными чартами - в общем чарте loki-stack используется изрядно устаревшая версия чарта promtail.
