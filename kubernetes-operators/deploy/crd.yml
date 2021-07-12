@@ -24,6 +24,7 @@ spec:
                   type: string
             spec:
               type: object
+              x-kubernetes-preserve-unknown-fields: true
               properties:
                 image: 
                   type: string
