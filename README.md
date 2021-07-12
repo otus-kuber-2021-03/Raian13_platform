@@ -63,3 +63,17 @@ kubectl taint node kind-worker4 node-role=infra:NoSchedule
 Установка elasticsearch-exporter, prometheus-operator - без существенных особенностей.
 
 Установка loki и promtail выполнена отдельными чартами - в общем чарте loki-stack используется изрядно устаревшая версия чарта promtail.
+
+## Homework 9 - CRD
+
+Задания со значком выполнялись, задания со звездочкой - нет.
+В Kubernetes 1.20+ удаление PV через garbage collector не работает, т.к. crd - это namespaced object, а pv - cluster-wide (https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/). Поэтому пришлось немного дописать оператор, добавив в delete_objects_make_backup удаление PV через api. 
+
+Вывод kubectl get jobs:
+> $ (⎈ minikube:default) kubectl get jobs                                                                                                   [±kubernetes-operators ✓]
+NAME                         COMPLETIONS   DURATION   AGE
+backup-mysql-instance-job    1/1           2s         26h
+restore-mysql-instance-job   1/1           65s        25h
+
+Вывод при запущенном MySQL:
+![screenshot](./images/operator-homework.png)
