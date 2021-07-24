@@ -54,7 +54,8 @@ kubectl label nodes kind-worker3 pool=infra-pool
 kubectl label nodes kind-worker4 pool=infra-pool
 
 kubectl taint node kind-worker2 node-role=infra:NoSchedule
-kubectl taint node kind-worker3 node-role=infra:NoSchedule
+kubectl taint node kind-worker3 node-role=infra:NoSche
+dule
 kubectl taint node kind-worker4 node-role=infra:NoSchedule
 ```
 
@@ -63,3 +64,25 @@ kubectl taint node kind-worker4 node-role=infra:NoSchedule
 Установка elasticsearch-exporter, prometheus-operator - без существенных особенностей.
 
 Установка loki и promtail выполнена отдельными чартами - в общем чарте loki-stack используется изрядно устаревшая версия чарта promtail.
+
+## Homework Gitops
+
+Kubernetes развертывался в YandexCloud с помощью terraform. Файлы для развертывания в каталоге kubernetes-gitops/terraform-yandex-cluster, terraform.tfvars исключен из репозитория.
+Для развертывания необходимо получить токен доступа и применить файлы:
+```
+export IAMTOKEN=`yc iam create-token`
+terraform plan -var="iam_token=$IAMTOKEN"
+terraform apply -var="iam_token=$IAMTOKEN"
+```
+
+Ссылка на репо в Гитлабе: https://gitlab.com/raian13/microservices_demo
+
+В процессе выполнения ДЗ обнаружились следующие проблемы:
+- ссылка на helm chart Redis в микросервисе cartservice неактуальна, переделано на bitnami
+- версия API для Canary resource проапгрейжена до v1beta1, при валидной настройке canary предполагаемая проблема с неуспешным релизом фронтенда не воспроизвелась.
+
+Вывод команды kubectl get canaries -n microservices:
+NAME       STATUS      WEIGHT   LASTTRANSITIONTIME
+frontend   Succeeded   0        2021-07-24T09:16:24Z
+
+Вывод после успешной выкладки - в файле kubernetes-gitops/canaries.out
