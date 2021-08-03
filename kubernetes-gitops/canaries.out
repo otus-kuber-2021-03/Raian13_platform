@@ -1,0 +1,117 @@
+Name:         frontend
+Namespace:    microservices-demo
+Labels:       app.kubernetes.io/managed-by=Helm
+Annotations:  helm.fluxcd.io/antecedent: microservices-demo:helmrelease/frontend
+              meta.helm.sh/release-name: frontend
+              meta.helm.sh/release-namespace: microservices-demo
+API Version:  flagger.app/v1beta1
+Kind:         Canary
+Metadata:
+  Creation Timestamp:  2021-07-23T19:36:18Z
+  Generation:          1
+  Managed Fields:
+    API Version:  flagger.app/v1beta1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .:
+          f:meta.helm.sh/release-name:
+          f:meta.helm.sh/release-namespace:
+        f:labels:
+          .:
+          f:app.kubernetes.io/managed-by:
+      f:spec:
+        .:
+        f:analysis:
+          .:
+          f:interval:
+          f:iterations:
+          f:threshold:
+        f:progressDeadlineSeconds:
+        f:service:
+          .:
+          f:gateways:
+          f:hosts:
+          f:port:
+          f:targetPort:
+          f:trafficPolicy:
+            .:
+            f:tls:
+              .:
+              f:mode:
+        f:targetRef:
+          .:
+          f:apiVersion:
+          f:kind:
+          f:name:
+    Manager:      Go-http-client
+    Operation:    Update
+    Time:         2021-07-23T19:36:18Z
+    API Version:  flagger.app/v1beta1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          f:helm.fluxcd.io/antecedent:
+    Manager:      kubectl
+    Operation:    Update
+    Time:         2021-07-23T19:36:19Z
+    API Version:  flagger.app/v1beta1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        f:service:
+          f:portDiscovery:
+      f:status:
+        .:
+        f:canaryWeight:
+        f:conditions:
+        f:failedChecks:
+        f:iterations:
+        f:lastAppliedSpec:
+        f:lastTransitionTime:
+        f:phase:
+        f:trackedConfigs:
+    Manager:         flagger
+    Operation:       Update
+    Time:            2021-07-23T19:40:24Z
+  Resource Version:  475098
+  Self Link:         /apis/flagger.app/v1beta1/namespaces/microservices-demo/canaries/frontend
+  UID:               deaa74ba-6a4b-49f9-b4c4-40077f685040
+Spec:
+  Analysis:
+    Interval:                 30s
+    Iterations:               10
+    Threshold:                5
+  Progress Deadline Seconds:  60
+  Service:
+    Gateways:
+      frontend-gw
+    Hosts:
+      *
+    Port:         80
+    Target Port:  8080
+    Traffic Policy:
+      Tls:
+        Mode:  DISABLE
+  Target Ref:
+    API Version:  apps/v1
+    Kind:         Deployment
+    Name:         frontend
+Status:
+  Canary Weight:  0
+  Conditions:
+    Last Transition Time:  2021-07-24T09:16:24Z
+    Last Update Time:      2021-07-24T09:16:24Z
+    Message:               Canary analysis completed successfully, promotion finished.
+    Reason:                Succeeded
+    Status:                True
+    Type:                  Promoted
+  Failed Checks:           0
+  Iterations:              0
+  Last Applied Spec:       5f4b48dc4
+  Last Transition Time:    2021-07-24T09:16:24Z
+  Phase:                   Succeeded
+  Tracked Configs:
+Events:  <none>
