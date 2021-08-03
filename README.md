@@ -86,6 +86,7 @@ NAME       STATUS      WEIGHT   LASTTRANSITIONTIME
 frontend   Succeeded   0        2021-07-24T09:16:24Z
 
 Вывод после успешной выкладки - в файле kubernetes-gitops/canaries.out
+
 ## Homework 9 - CRD
 
 Задания со значком выполнялись, задания со звездочкой - нет.
