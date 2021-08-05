@@ -100,3 +100,152 @@ restore-mysql-instance-job   1/1           65s        25h
 
 Вывод при запущенном MySQL:
 ![screenshot](./images/operator-homework.png)
+
+## Homework Vault
+
+```bash
+> $ (⎈ kind-kind:default) helm status vault                                                                                                                [±master ●]
+NAME: vault
+LAST DEPLOYED: Wed Aug  4 14:20:32 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+Thank you for installing HashiCorp Vault!
+
+Now that you have deployed Vault, you should look over the docs on using
+Vault with Kubernetes available here:
+
+https://www.vaultproject.io/docs/
+
+
+Your release is named vault. To learn more about the release, try:
+
+  $ helm status vault
+  $ helm get manifest vault
+```
+
+```bash
+> $ (⎈ kind-kind:default) kubectl exec -it vault-0 -- vault operator init --key-shares=1 --key-threshold=1                                                 [±master ●]
+Unseal Key 1: zL1J5skiMD1dguB+UmitmxoMdzo3/axuiqSi+A/Z5OU=
+
+Initial Root Token: s.l3LYYiyrPMJYe4eV45KnT0be
+
+Vault initialized with 1 key shares and a key threshold of 1. Please securely
+distribute the key shares printed above. When the Vault is re-sealed,
+restarted, or stopped, you must supply at least 1 of these keys to unseal it
+before it can start servicing requests.
+
+Vault does not store the generated master key. Without at least 1 keys to
+reconstruct the master key, Vault will remain permanently sealed!
+
+It is possible to generate new unseal keys, provided you have a quorum of
+existing unseal keys shares. See "vault operator rekey" for more information.
+```
+
+```bash
+> $ (⎈ kind-kind:default) for i in {0..2}; do echo "vault-$i status:";  kubectl exec -it vault-$i -- vault status; echo " ";  done                                    
+vault-0 status:             
+Key             Value        
+---             -----                                                              
+Seal Type       shamir                                                             
+Initialized     true       
+Sealed          false                                                              
+Total Shares    1             
+Threshold       1                                                                  
+Version         1.8.0
+Storage Type    consul
+Cluster Name    vault-cluster-0271dc10                                                                                                                                 
+Cluster ID      24081be9-9a88-af95-d379-229d673be748                                                                                                                   
+HA Enabled      true
+HA Cluster      https://vault-0.vault-internal:8201
+HA Mode         active
+Active Since    2021-08-04T11:36:12.699965108Z
+  
+vault-1 status:
+Key                    Value
+---                    -----
+Seal Type              shamir
+Initialized            true
+Sealed                 false
+Total Shares           1
+Threshold              1
+Version                1.8.0
+Storage Type           consul
+Cluster Name           vault-cluster-0271dc10
+Cluster ID             24081be9-9a88-af95-d379-229d673be748
+HA Enabled             true
+HA Cluster             https://vault-0.vault-internal:8201
+HA Mode                standby
+Active Node Address    http://10.244.1.3:8200
+
+ 
+vault-2 status:
+Key                    Value
+---                    -----
+Seal Type              shamir
+Initialized            true
+Sealed                 false
+Total Shares           1
+Threshold              1
+Version                1.8.0
+Storage Type           consul
+Cluster Name           vault-cluster-0271dc10
+Cluster ID             24081be9-9a88-af95-d379-229d673be748
+HA Enabled             true
+HA Cluster             https://vault-0.vault-internal:8201
+HA Mode                standby
+Active Node Address    http://10.244.1.3:8200
+```
+
+```bash
+> $ (⎈ kind-kind:default) kubectl exec -it vault-0 -- vault login                                                                                                     
+Token (will be hidden): 
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run "vault login"
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                s.l3LYYiyrPMJYe4eV45KnT0be
+token_accessor       C81PsBH18Qb8FbsYwsQkcxnn
+token_duration       ∞
+token_renewable      false
+token_policies       ["root"]
+identity_policies    []
+policies             ["root"]
+```
+
+```bash
+> $ (⎈ kind-kind:default) kubectl exec -it vault-0 -- vault auth list                                                                                                 
+Path      Type     Accessor               Description
+----      ----     --------               -----------
+token/    token    auth_token_0c0d4e38    token based credentials
+```
+
+```bash
+> $ (⎈ kind-kind:default) kubectl exec -it vault-0 -- vault read otus/otus-ro/config                                                                                  
+Key                 Value
+---                 -----
+refresh_interval    768h
+password            asxcfgbnjk
+username            otus
+                                                                                                                                 
+> $ (⎈ kind-kind:default) kubectl exec -it vault-0 -- vault kv get otus/otus-rw/config                                                                                
+====== Data ======
+Key         Value
+---         -----
+password    asxcfgbnjk
+username    otus
+
+```
+
+```bash
+> $ (⎈ kind-kind:default) kubectl exec -it vault-0 -- vault auth list                                                                                                 
+Path           Type          Accessor                    Description
+----           ----          --------                    -----------
+kubernetes/    kubernetes    auth_kubernetes_487efb62    n/a
+token/         token         auth_token_0c0d4e38         token based credentials
+```
+
+Т.к. исходная версия политики разрешает создание, но не изменение файлов в otus/otus-rw (включены права create, list, read) - то мы смогли создать otus/otus-rw/config1, но не смогли изменить otus/otus-rw/config. Для измененения необходимо добавить в список update, при необходимости удалять - добавить в список delete.
