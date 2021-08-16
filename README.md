@@ -357,3 +357,20 @@ revocation_time            1628160010
 revocation_time_rfc3339    2021-08-05T10:40:10.85608107Z
 
 ```
+
+## Homework: Kubernetes debug
+
+Установка DaemonSet:
+
+```bash
+kubectl apply -f kubernetes-debug/strace/agent_daemonset.yml
+```
+
+Подключение к поду:
+
+```bash
+kubectl-debug --port-forward --agentless=false frontend-5c6dcc58c-vhxz9
+```
+
+Ошибка, описанная в ДЗ (PTRACE_TRACEME: Operation not permitted) - у меня не воспроизвелась, трейсинг работает. Использовала версию aylei/debug-agent:v0.1.1
+
