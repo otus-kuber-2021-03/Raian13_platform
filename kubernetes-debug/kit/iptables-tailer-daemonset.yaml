@@ -1,0 +1,39 @@
+---
+  apiVersion: "apps/v1"
+  kind: "DaemonSet"
+  metadata: 
+    name: "kube-iptables-tailer"
+    namespace: "kube-system"
+  spec: 
+    selector:
+      matchLabels:
+        app: "kube-iptables-tailer"
+    template:
+      metadata:
+        labels:
+          app: "kube-iptables-tailer"
+      spec:
+        serviceAccount: kube-iptables-tailer
+        containers: 
+          - name: "kube-iptables-tailer"
+            command:
+              - "/kube-iptables-tailer"
+            env:
+              - name: LOG_LEVEL
+                value: info
+              - name: "JOURNAL_DIRECTORY"
+                value: "/var/log/journal"
+              - name: "IPTABLES_LOG_PREFIX"
+                # log prefix defined in your iptables chains
+                value: "calico-packet:"
+            image: "raian13/kube-iptables-tailer:v0.2.1"
+            volumeMounts: 
+              - name: "iptables-logs"
+                mountPath: "/var/log"
+                readOnly: true
+        volumes:
+          - name: "iptables-logs"
+            hostPath: 
+              # absolute path of the directory containing iptables log file on your host
+              path: "/var/log"
+
