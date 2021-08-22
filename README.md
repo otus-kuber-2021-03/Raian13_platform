@@ -29,14 +29,16 @@ Helm, jsonnet и kustomize - шаблонизация и развертыван�
 
 ## Homework 7
 
-На базе кастомного образа Nginx с встроенным stub_status создан deployment с 3 подами. В каждом поде рядом с Nginx поднят nginx-exporter, собирающий метрики с данного пода. Service публикует порт приложения и порт nginx-exporter. Servicemonitor отслеживает сервис с лейблом nginx-custom - таким же, как в сервисе. 
-Prometheus-exporter развернут через helm3, модифицированный values.yaml - в файле helm/values.yaml. 
+На базе кастомного образа Nginx с встроенным stub_status создан deployment с 3 подами. В каждом поде рядом с Nginx поднят nginx-exporter, собирающий метрики с данного пода. Service публикует порт приложения и порт nginx-exporter. Servicemonitor отслеживает сервис с лейблом nginx-custom - таким же, как в сервисе.
+Prometheus-exporter развернут через helm3, модифицированный values.yaml - в файле helm/values.yaml.
 Основные изменения:
+
 - сервисы Grafana, Alertmanager, Prometheus переключены в режим NodePort для локального доступа к UI
 - добавлен общий label monitoring: enabled, который используется в serviceMonitorSelector для target discovery
 
 Команды для развертывания:
-```
+
+```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm install prometheus-operator prometheus-community/kube-prometheus-stack -f helm/values.yaml -n monitor
@@ -47,7 +49,8 @@ helm install prometheus-operator prometheus-community/kube-prometheus-stack -f h
 ## Homework 8
 
 Домашняя работа выполнялась не в Google Cloud, а локально на кластере kind. Для имитации условий - создана 1 нода с ролью control-plane и 4 ноды worker. Для имитации пулов к нодам применены следующие команды
-```
+
+```bash
 kubectl label nodes kind-worker pool=default-pool
 kubectl label nodes kind-worker2 pool=infra-pool
 kubectl label nodes kind-worker3 pool=infra-pool
@@ -69,15 +72,17 @@ kubectl taint node kind-worker4 node-role=infra:NoSchedule
 
 Kubernetes развертывался в YandexCloud с помощью terraform. Файлы для развертывания в каталоге kubernetes-gitops/terraform-yandex-cluster, terraform.tfvars исключен из репозитория.
 Для развертывания необходимо получить токен доступа и применить файлы:
-```
+
+```bash
 export IAMTOKEN=`yc iam create-token`
 terraform plan -var="iam_token=$IAMTOKEN"
 terraform apply -var="iam_token=$IAMTOKEN"
 ```
 
-Ссылка на репо в Гитлабе: https://gitlab.com/raian13/microservices_demo
+Ссылка на репо в Гитлабе: <https://gitlab.com/raian13/microservices_demo>
 
 В процессе выполнения ДЗ обнаружились следующие проблемы:
+
 - ссылка на helm chart Redis в микросервисе cartservice неактуальна, переделано на bitnami
 - версия API для Canary resource проапгрейжена до v1beta1, при валидной настройке canary предполагаемая проблема с неуспешным релизом фронтенда не воспроизвелась.
 
@@ -90,7 +95,7 @@ frontend   Succeeded   0        2021-07-24T09:16:24Z
 ## Homework 9 - CRD
 
 Задания со значком выполнялись, задания со звездочкой - нет.
-В Kubernetes 1.20+ удаление PV через garbage collector не работает, т.к. crd - это namespaced object, а pv - cluster-wide (https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/). Поэтому пришлось немного дописать оператор, добавив в delete_objects_make_backup удаление PV через api. 
+В Kubernetes 1.20+ удаление PV через garbage collector не работает, т.к. crd - это namespaced object, а pv - cluster-wide (<https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/>). Поэтому пришлось немного дописать оператор, добавив в delete_objects_make_backup удаление PV через api.
 
 Вывод kubectl get jobs:
 > $ (⎈ minikube:default) kubectl get jobs                                                                                                   [±kubernetes-operators ✓]
@@ -378,3 +383,93 @@ kubectl-debug --port-forward --agentless=false frontend-5c6dcc58c-vhxz9
 
 Манифесты daemonset и ServiceAccount с необходимыми ролями - в каталоге kit.
 По задаче со * - исправленная политика в файле kit/netperf-policy.yml.
+
+## Homework: Kubernetes install and upgrade
+
+Выполняла на примере Яндекс.Облако
+
+Картинка после инсталляции нод, развертывания docker, kubelet, kubeadm, kubectl, создания control plane и присоединения worker nodes:
+
+```bash
+ubuntu@otus-k8-master:~$ kubectl get nodes
+NAME              STATUS   ROLES    AGE     VERSION
+otus-k8-master    Ready    master   7m18s   v1.17.4
+otus-k8-worker3   Ready    <none>   23s     v1.17.4
+otus-worker1      Ready    <none>   4m39s   v1.17.4
+otus-worker2      Ready    <none>   30s     v1.17.4
+```
+
+Nginx разворачивается:
+
+```bash
+ubuntu@otus-k8-master:~$ kubectl get pods
+NAME                               READY   STATUS    RESTARTS   AGE
+nginx-deployment-c8fd555cc-5grxc   1/1     Running   0          31s
+nginx-deployment-c8fd555cc-hgj2l   1/1     Running   0          31s
+nginx-deployment-c8fd555cc-n7mdv   1/1     Running   0          31s
+nginx-deployment-c8fd555cc-qnrp9   1/1     Running   0          31s
+```
+
+После установки версий 1.18.0-00 kubectl отображает у мастер-ноды версию 1.18.0 - ведь мы обновили kubelet. Однако apiserver - версии 1.17
+
+```bash
+ubuntu@otus-k8-master:~$ kubectl get nodes
+NAME              STATUS   ROLES    AGE   VERSION
+otus-k8-master    Ready    master   8h    v1.18.0
+otus-k8-worker3   Ready    <none>   8h    v1.17.4
+otus-worker1      Ready    <none>   8h    v1.17.4
+otus-worker2      Ready    <none>   8h    v1.17.4
+
+ubuntu@otus-k8-master:~$ kubectl version
+Client Version: version.Info{Major:"1", Minor:"18", GitVersion:"v1.18.0", GitCommit:"9e991415386e4cf155a24b1da15becaa390438d8", GitTreeState:"clean", BuildDate:"2020-03-25T14:58:59Z", GoVersion:"go1.13.8", Compiler:"gc", Platform:"linux/amd64"}
+Server Version: version.Info{Major:"1", Minor:"17", GitVersion:"v1.17.17", GitCommit:"f3abc15296f3a3f54e4ee42e830c61047b13895f", GitTreeState:"clean", BuildDate:"2021-01-13T13:13:00Z", GoVersion:"go1.13.15", Compiler:"gc", Platform:"linux/amd64"}
+
+ubuntu@otus-k8-master:~$ kubectl -n kube-system get pod kube-apiserver-otus-k8-master -o jsonpath='{.spec.containers[*].image}'
+k8s.gcr.io/kube-apiserver:v1.17.17
+```
+
+После обновления всех нод:
+
+```bash
+ubuntu@otus-k8-master:~$ kubectl get nodes
+NAME              STATUS   ROLES    AGE   VERSION
+otus-k8-master    Ready    master   21h   v1.18.0
+otus-k8-worker3   Ready    <none>   21h   v1.18.0
+otus-worker1      Ready    <none>   21h   v1.18.0
+otus-worker2      Ready    <none>   21h   v1.18.0
+```
+
+### Инсталляция через kubespray
+
+Вариант 1 мастер + 3 worker:
+
+```bash
+root@master1:/home/ubuntu# kubectl get nodes
+NAME      STATUS   ROLES                  AGE    VERSION
+master1   Ready    control-plane,master   3m5s   v1.21.3
+worker1   Ready    <none>                 2m4s   v1.21.3
+worker2   Ready    <none>                 2m4s   v1.21.3
+worker3   Ready    <none>                 2m5s   v1.21.3
+```
+
+Вариант 3 мастера + 2 worker (задание со звездочкой)
+
+```bash
+
+```
+
+Задание со *
+
+Для установки кластера из 3 мастеров и 2 воркеров выбран kubespray. Инвентори-файл лежит в каталоге kubernetes_update/3m_2w_cluster.
+Результат после установки:
+
+```bash
+ubuntu@master1:~$ sudo su
+root@master1:/home/ubuntu# kubectl get nodes
+NAME      STATUS   ROLES                  AGE   VERSION
+master1   Ready    control-plane,master   12m   v1.21.3
+master2   Ready    control-plane,master   12m   v1.21.3
+master3   Ready    control-plane,master   12m   v1.21.3
+worker1   Ready    <none>                 11m   v1.21.3
+worker2   Ready    <none>                 11m   v1.21.3
+```
